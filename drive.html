@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Neuron Drive - P2P Облако</title>
+    <script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>
+    <style>
+        body { font-family: Arial; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .upload-area { border: 2px dashed #ccc; padding: 40px; text-align: center; margin: 20px 0; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>☁️ Neuron Drive</h1>
+    <p>Загрузите файл в P2P сеть:</p>
+    
+    <div class="upload-area">
+        <input type="file" id="fileInput">
+        <button onclick="uploadFile()">📤 Загрузить в сеть</button>
+    </div>
+    
+    <div id="links"></div>
+
+    <script>
+        const client = new WebTorrent()
+        
+        function uploadFile() {
+            const file = document.getElementById('fileInput').files[0]
+            if (!file) return alert('Выберите файл!')
+            
+            client.seed(file, function(torrent) {
+                const magnetLink = torrent.magnetURI
+                const linkElement = `<p>🔗 Файл в сети: <input value="${magnetLink}" style="width: 100%"></p>`
+                document.getElementById('links').innerHTML += linkElement
+                alert('✅ Файл загружен в P2P сеть!')
+            })
+        }
+    </script>
+    
+    <br><br>
+    <a href="index.html">← Назад к порталу</a>
+</body>
+</html>
