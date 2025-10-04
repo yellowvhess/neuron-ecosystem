@@ -1,54 +1,179 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neuron Chat - P2P Мессенджер</title>
     <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: Arial; max-width: 600px; margin: 0 auto; padding: 20px; }
-        #messages { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; }
-        .message { margin: 5px 0; }
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 0.8rem 1.2rem;
+            margin: 0.5rem 0;
+            border-radius: 15px;
+            animation: messageSlide 0.3s ease;
+        }
+
+        .message.own {
+            align-self: flex-end;
+            background: var(--primary);
+            color: white;
+        }
+
+        .message.other {
+            align-self: flex-start;
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .input-area {
+            display: flex;
+            padding: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            gap: 0.5rem;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .send-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .send-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>💬 Neuron Chat</h1>
+    <div class="particles" id="particles"></div>
     
-    <div>
-        <input type="text" id="username" placeholder="Ваше имя">
-        <input type="text" id="messageInput" placeholder="Сообщение">
-        <button onclick="sendMessage()">Отправить</button>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-comments"></i> Neuron Chat</h1>
+            <p>Децентрализованный P2P мессенджер</p>
+        </div>
+
+        <div class="chat-container">
+            <div class="messages" id="messages"></div>
+            
+            <div class="input-area">
+                <input type="text" id="username" placeholder="Ваше имя" style="width: 150px; padding: 1rem; border: none; border-radius: 10px; background: rgba(255,255,255,0.05); color: var(--text);">
+                <input type="text" id="messageInput" placeholder="Введите сообщение..." class="message-input" onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()" class="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
     </div>
-    
-    <div id="messages"></div>
 
     <script>
-        const gun = Gun('https://gun-manhattan.herokuapp.com/gun')
-        
+        const gun = Gun(['https://gun-manhattan.herokuapp.com/gun']);
+        const chat = gun.get('neuron-chat-v2');
+        let username = localStorage.getItem('neuron-chat-username') || '';
+
+        document.getElementById('username').value = username;
+
         function sendMessage() {
-            const username = document.getElementById('username').value || 'Аноним'
-            const message = document.getElementById('messageInput').value
+            const messageInput = document.getElementById('messageInput');
+            const usernameInput = document.getElementById('username');
             
-            if (message) {
-                gun.get('neuron-chat').set({
-                    user: username,
-                    text: message,
-                    time: new Date().toLocaleTimeString()
-                })
-                document.getElementById('messageInput').value = ''
+            const text = messageInput.value.trim();
+            const user = usernameInput.value.trim() || 'Аноним';
+            
+            if (text) {
+                // Сохраняем имя пользователя
+                if (user !== username) {
+                    username = user;
+                    localStorage.setItem('neuron-chat-username', username);
+                }
+                
+                chat.set({
+                    user: user,
+                    text: text,
+                    time: new Date().toLocaleTimeString(),
+                    id: Date.now() + Math.random()
+                });
+                
+                messageInput.value = '';
             }
         }
-        
-        // Получаем сообщения
-        gun.get('neuron-chat').map().on(function(msg) {
-            if (msg) {
-                const messageElement = `<div class="message"><b>${msg.user}:</b> ${msg.text} <small>${msg.time}</small></div>`
-                document.getElementById('messages').innerHTML += messageElement
-                document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
             }
-        })
+        }
+
+        // Получаем сообщения
+        chat.map().on(function(msg, id) {
+            if (msg && id) {
+                const messagesDiv = document.getElementById('messages');
+                const messageElement = document.createElement('div');
+                
+                const isOwn = msg.user === username;
+                messageElement.className = `message ${isOwn ? 'own' : 'other'}`;
+                messageElement.innerHTML = `
+                    <div style="font-weight: bold; margin-bottom: 0.3rem;">${msg.user}</div>
+                    <div>${msg.text}</div>
+                    <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.3rem;">${msg.time}</div>
+                `;
+                
+                // Удаляем дубликаты
+                const existing = document.querySelector(`[data-id="${id}"]`);
+                if (existing) existing.remove();
+                
+                messageElement.setAttribute('data-id', id);
+                messagesDiv.appendChild(messageElement);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        });
+
+        // Автофокус на поле ввода
+        document.getElementById('messageInput').focus();
     </script>
-    
-    <br>
-    <a href="index.html">← Назад к порталу</a>
 </body>
 </html>
