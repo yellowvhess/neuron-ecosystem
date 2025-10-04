@@ -1,42 +1,197 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neuron Drive - P2P Облако</title>
     <script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: Arial; max-width: 600px; margin: 0 auto; padding: 20px; }
-        .upload-area { border: 2px dashed #ccc; padding: 40px; text-align: center; margin: 20px 0; }
-        button { padding: 10px 20px; margin: 5px; }
+        /* Стили как в index.html + дополнительные */
+        .upload-area {
+            border: 2px dashed var(--primary);
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            margin: 2rem 0;
+            transition: all 0.3s ease;
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .upload-area.dragover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: #8b5cf6;
+        }
+
+        .file-list {
+            margin-top: 2rem;
+        }
+
+        .file-item {
+            background: var(--card-bg);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
     </style>
 </head>
 <body>
-    <h1>☁️ Neuron Drive</h1>
-    <p>Загрузите файл в P2P сеть:</p>
+    <div class="particles" id="particles"></div>
     
-    <div class="upload-area">
-        <input type="file" id="fileInput">
-        <button onclick="uploadFile()">📤 Загрузить в сеть</button>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-cloud"></i> Neuron Drive</h1>
+            <p>P2P облачное хранилище</p>
+        </div>
+
+        <div class="upload-area" id="uploadArea">
+            <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+            <h3>Перетащите файлы сюда</h3>
+            <p>или</p>
+            <input type="file" id="fileInput" multiple style="display: none;">
+            <button onclick="document.getElementById('fileInput').click()" 
+                    style="background: var(--primary); color: white; border: none; padding: 1rem 2rem; border-radius: 10px; cursor: pointer;">
+                Выберите файлы
+            </button>
+        </div>
+
+        <div class="file-list" id="fileList"></div>
     </div>
-    
-    <div id="links"></div>
 
     <script>
-        const client = new WebTorrent()
+        const client = new WebTorrent();
+        let files = JSON.parse(localStorage.getItem('neuron-drive-files')) || [];
+
+        // Drag and drop
+        const uploadArea = document.getElementById('uploadArea');
         
-        function uploadFile() {
-            const file = document.getElementById('fileInput').files[0]
-            if (!file) return alert('Выберите файл!')
-            
-            client.seed(file, function(torrent) {
-                const magnetLink = torrent.magnetURI
-                const linkElement = `<p>🔗 Файл в сети: <input value="${magnetLink}" style="width: 100%"></p>`
-                document.getElementById('links').innerHTML += linkElement
-                alert('✅ Файл загружен в P2P сеть!')
-            })
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
         }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragover'), false);
+        });
+
+        uploadArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(fileList) {
+            Array.from(fileList).forEach(file => {
+                uploadFile(file);
+            });
+        }
+
+        function uploadFile(file) {
+            client.seed(file, function(torrent) {
+                const fileInfo = {
+                    name: file.name,
+                    size: formatFileSize(file.size),
+                    magnet: torrent.magnetURI,
+                    timestamp: new Date().toLocaleString()
+                };
+                
+                files.push(fileInfo);
+                localStorage.setItem('neuron-drive-files', JSON.stringify(files));
+                renderFiles();
+                
+                // Показываем уведомление
+                showNotification(`Файл "${file.name}" загружен в P2P сеть!`);
+            });
+        }
+
+        function renderFiles() {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
+            
+            files.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <div>
+                        <strong>${file.name}</strong>
+                        <div style="color: var(--text-secondary); font-size: 0.9rem;">
+                            ${file.size} • ${file.timestamp}
+                        </div>
+                    </div>
+                    <div>
+                        <button onclick="copyMagnet('${file.magnet}')" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; margin-right: 0.5rem;">
+                            <i class="fas fa-copy"></i> Ссылка
+                        </button>
+                        <button onclick="downloadFile('${file.magnet}', '${file.name}')" style="background: var(--primary-dark); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer;">
+                            <i class="fas fa-download"></i> Скачать
+                        </button>
+                    </div>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        function copyMagnet(magnet) {
+            navigator.clipboard.writeText(magnet).then(() => {
+                showNotification('Magnet-ссылка скопирована!');
+            });
+        }
+
+        function downloadFile(magnet, filename) {
+            client.add(magnet, function(torrent) {
+                torrent.files[0].getBlob(function(err, blob) {
+                    if (err) return showNotification('Ошибка загрузки');
+                    
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    
+                    showNotification(`Файл "${filename}" скачан!`);
+                });
+            });
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function showNotification(message) {
+            // Простое уведомление
+            alert(message); // Можно заменить на красивый toast
+        }
+
+        // Инициализация
+        renderFiles();
     </script>
-    
-    <br><br>
-    <a href="index.html">← Назад к порталу</a>
 </body>
 </html>
