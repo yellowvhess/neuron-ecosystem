@@ -1,65 +1,264 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neuron P2P Ecosystem</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background: #f5f5f5;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg: #0f0f23;
+            --card-bg: #1a1b2e;
+            --text: #ffffff;
+            --text-secondary: #a0a0c0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
         .header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 4rem;
+            animation: fadeInUp 1s ease;
         }
-        .services {
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .services-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
         }
+
         .service-card {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
             text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            text-decoration: none;
-            color: #333;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
         }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .service-card:hover::before {
+            left: 100%;
+        }
+
         .service-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+            border-color: var(--primary);
+        }
+
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .service-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .service-desc {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .card-animation {
+            animation: fadeInUp 0.6s ease backwards;
+        }
+
+        .card-animation:nth-child(1) { animation-delay: 0.1s; }
+        .card-animation:nth-child(2) { animation-delay: 0.2s; }
+        .card-animation:nth-child(3) { animation-delay: 0.3s; }
+        .card-animation:nth-child(4) { animation-delay: 0.4s; }
+
+        /* Мобильная адаптация */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .logo {
+                font-size: 3rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🚀 Neuron P2P Ecosystem</h1>
-        <p>Децентрализованная экосистема в вашем браузере</p>
-    </div>
+    <div class="particles" id="particles"></div>
     
-    <div class="services">
-        <a href="drive.html" class="service-card">
-            <h2>☁️ Neuron Drive</h2>
-            <p>P2P облачное хранилище</p>
-        </a>
-        
-        <a href="mail.html" class="service-card">
-            <h2>📧 Neuron Mail</h2>
-            <p>Децентрализованная почта</p>
-        </a>
-        
-        <a href="chat.html" class="service-card">
-            <h2>💬 Neuron Chat</h2>
-            <p>P2P мессенджер</p>
-        </a>
-        
-        <a href="notes.html" class="service-card">
-            <h2>📝 Neuron Notes</h2>
-            <p>Заметки в браузере</p>
-        </a>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+            </div>
+            <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Neuron P2P Ecosystem</h1>
+            <p style="color: var(--text-secondary); font-size: 1.2rem;">
+                Децентрализованная экосистема нового поколения
+            </p>
+        </div>
+
+        <div class="services-grid">
+            <div class="service-card card-animation" onclick="openService('drive.html')">
+                <div class="service-icon">
+                    <i class="fas fa-cloud"></i>
+                </div>
+                <h3 class="service-title">Neuron Drive</h3>
+                <p class="service-desc">P2P облачное хранилище с шифрованием</p>
+            </div>
+
+            <div class="service-card card-animation" onclick="openService('chat.html')">
+                <div class="service-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3 class="service-title">Neuron Chat</h3>
+                <p class="service-desc">Децентрализованный мессенджер</p>
+            </div>
+
+            <div class="service-card card-animation" onclick="openService('mail.html')">
+                <div class="service-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <h3 class="service-title">Neuron Mail</h3>
+                <p class="service-desc">P2P почта без серверов</p>
+            </div>
+
+            <div class="service-card card-animation" onclick="openService('notes.html')">
+                <div class="service-icon">
+                    <i class="fas fa-sticky-note"></i>
+                </div>
+                <h3 class="service-title">Neuron Notes</h3>
+                <p class="service-desc">Заметки с синхронизацией</p>
+            </div>
+        </div>
     </div>
+
+    <script>
+        // Частицы для фона
+        function createParticles() {
+            const particles = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                    position: absolute;
+                    width: 2px;
+                    height: 2px;
+                    background: var(--primary);
+                    border-radius: 50%;
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    animation: floatParticle ${10 + Math.random() * 20}s linear infinite;
+                `;
+                particles.appendChild(particle);
+            }
+        }
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes floatParticle {
+                0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+                10% { opacity: 1; }
+                90% { opacity: 1; }
+                100% { transform: translate(${Math.random() * 200 - 100}px, ${Math.random() * 200 - 100}px) rotate(360deg); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        function openService(url) {
+            window.location.href = url;
+        }
+
+        // Запуск анимаций
+        createParticles();
+        
+        // Добавляем интерактивность
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.service-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        });
+    </script>
 </body>
 </html>
