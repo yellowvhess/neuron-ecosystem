@@ -1,7 +1,7 @@
-    <script>
+<script>
 // Принудительный редирект на HTTPS
 if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-    location.replace(https:${location.href.substring(location.protocol.length)});
+    location.replace(`https:${location.href.substring(location.protocol.length)}`);
 }
 </script>
 <!DOCTYPE html>
@@ -149,6 +149,7 @@ if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
 
         .card-animation:nth-child(1) { animation-delay: 0.1s; }
         .card-animation:nth-child(2) { animation-delay: 0.2s; }
+        .card-animation:nth-child(3) { animation-delay: 0.3s; }
 
         /* Мобильная адаптация */
         @media (max-width: 768px) {
@@ -187,6 +188,14 @@ if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
                 </div>
                 <h3 class="service-title">Neuron Notes</h3>
                 <p class="service-desc">Умные заметки с синхронизацией между устройствами</p>
+            </a>
+
+            <a href="https://neuron-ecosystem.github.io/Unit-Converter/" class="service-card card-animation" target="_blank">
+                <div class="service-icon">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <h3 class="service-title">Neuron Converter</h3>
+                <p class="service-desc">Конвертер валют, единиц измерения и температур</p>
             </a>
 
             <a href="studio.html" class="service-card card-animation">
