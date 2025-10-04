@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neuron P2P Ecosystem</title>
+    <title>Neuron Ecosystem</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -76,6 +76,9 @@
             position: relative;
             overflow: hidden;
             cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
         }
 
         .service-card::before {
@@ -140,8 +143,6 @@
 
         .card-animation:nth-child(1) { animation-delay: 0.1s; }
         .card-animation:nth-child(2) { animation-delay: 0.2s; }
-        .card-animation:nth-child(3) { animation-delay: 0.3s; }
-        .card-animation:nth-child(4) { animation-delay: 0.4s; }
 
         /* Мобильная адаптация */
         @media (max-width: 768px) {
@@ -167,44 +168,28 @@
             <div class="logo">
                 <i class="fas fa-brain"></i>
             </div>
-            <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Neuron P2P Ecosystem</h1>
+            <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Neuron Ecosystem</h1>
             <p style="color: var(--text-secondary); font-size: 1.2rem;">
-                Децентрализованная экосистема нового поколения
+                Простые и эффективные инструменты
             </p>
         </div>
 
         <div class="services-grid">
-            <div class="service-card card-animation" onclick="openService('drive.html')">
-                <div class="service-icon">
-                    <i class="fas fa-cloud"></i>
-                </div>
-                <h3 class="service-title">Neuron Drive</h3>
-                <p class="service-desc">P2P облачное хранилище с шифрованием</p>
-            </div>
-
-            <div class="service-card card-animation" onclick="openService('chat.html')">
-                <div class="service-icon">
-                    <i class="fas fa-comments"></i>
-                </div>
-                <h3 class="service-title">Neuron Chat</h3>
-                <p class="service-desc">Децентрализованный мессенджер</p>
-            </div>
-
-            <div class="service-card card-animation" onclick="openService('mail.html')">
-                <div class="service-icon">
-                    <i class="fas fa-envelope"></i>
-                </div>
-                <h3 class="service-title">Neuron Mail</h3>
-                <p class="service-desc">P2P почта без серверов</p>
-            </div>
-
-            <div class="service-card card-animation" onclick="openService('notes.html')">
+            <a href="notes.html" class="service-card card-animation">
                 <div class="service-icon">
                     <i class="fas fa-sticky-note"></i>
                 </div>
                 <h3 class="service-title">Neuron Notes</h3>
-                <p class="service-desc">Заметки с синхронизацией</p>
-            </div>
+                <p class="service-desc">Умные заметки с синхронизацией между устройствами</p>
+            </a>
+
+            <a href="studio.html" class="service-card card-animation">
+                <div class="service-icon">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <h3 class="service-title">Neuron Digital Studio</h3>
+                <p class="service-desc">Узнайте о нашей студии дизайна и разработки</p>
+            </a>
         </div>
     </div>
 
@@ -238,10 +223,6 @@
             }
         `;
         document.head.appendChild(style);
-
-        function openService(url) {
-            window.location.href = url;
-        }
 
         // Запуск анимаций
         createParticles();
