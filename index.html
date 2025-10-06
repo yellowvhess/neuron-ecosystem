@@ -42,6 +42,9 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
@@ -64,6 +67,7 @@
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2rem;
             margin-top: 3rem;
+            flex: 1;
         }
 
         .service-card {
@@ -121,6 +125,115 @@
             line-height: 1.6;
         }
 
+        /* Стили для блока соцсетей */
+        .social-section {
+            margin-top: auto;
+            padding-top: 3rem;
+            text-align: center;
+        }
+
+        .social-title {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .social-grid {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .social-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+
+        .social-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .social-button:hover::before {
+            left: 100%;
+        }
+
+        .social-button:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .social-icon {
+            font-size: 1.5rem;
+            z-index: 2;
+        }
+
+        /* Цвета для разных соцсетей */
+        .telegram {
+            background: linear-gradient(135deg, #0088cc, #00aced);
+            color: white;
+        }
+
+        .vk {
+            background: linear-gradient(135deg, #4a76a8, #5b88bd);
+            color: white;
+        }
+
+        .web {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .email {
+            background: linear-gradient(135deg, #ea4335, #d14836);
+            color: white;
+        }
+
+        .tiktok {
+            background: linear-gradient(135deg, #000000, #69c9d0);
+            color: white;
+        }
+
+        /* Уведомление о копировании */
+        .copy-notification {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+        }
+
+        .copy-notification.show {
+            opacity: 1;
+        }
+
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -158,6 +271,30 @@
             
             .logo {
                 font-size: 3rem;
+            }
+            
+            .social-button {
+                width: 55px;
+                height: 55px;
+            }
+            
+            .social-icon {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .social-grid {
+                gap: 0.8rem;
+            }
+            
+            .social-button {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .social-title {
+                font-size: 1rem;
             }
         }
     </style>
@@ -210,7 +347,41 @@
                 <p class="service-desc">Классическая игра Змейка в современном стиле от Neuron Ecosystem</p>
             </a>
         </div>
+
+        <!-- Блок соцсетей -->
+        <div class="social-section">
+            <h3 class="social-title">Мы в социальных сетях</h3>
+            <div class="social-grid">
+                <!-- Telegram -->
+                <a href="https://t.me/neuron_ecosystem" class="social-button telegram" target="_blank" onclick="event.stopPropagation()">
+                    <i class="fab fa-telegram social-icon"></i>
+                </a>
+                
+                <!-- VK -->
+                <a href="https://vk.com/club233118101?from=groups" class="social-button vk" target="_blank" onclick="event.stopPropagation()">
+                    <i class="fab fa-vk social-icon"></i>
+                </a>
+                
+                <!-- Сайт -->
+                <a href="https://neuron-p2p.ru" class="social-button web" target="_blank" onclick="event.stopPropagation()">
+                    <i class="fas fa-globe social-icon"></i>
+                </a>
+                
+                <!-- Email -->
+                <a href="#" class="social-button email" id="email-button" onclick="copyEmail(event)">
+                    <i class="fas fa-envelope social-icon"></i>
+                </a>
+                
+                <!-- TikTok -->
+                <a href="#" class="social-button tiktok" onclick="showTikTokMessage(event)">
+                    <i class="fab fa-tiktok social-icon"></i>
+                </a>
+            </div>
+        </div>
     </div>
+
+    <!-- Уведомление о копировании -->
+    <div class="copy-notification" id="copy-notification">Email скопирован!</div>
 
     <script>
         // Частицы для фона
@@ -243,10 +414,47 @@
         `;
         document.head.appendChild(style);
 
+        // Функция копирования email
+        function copyEmail(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const email = 'wertq6306@gmail.com';
+            const copyNotification = document.getElementById('copy-notification');
+            
+            // Современный способ копирования
+            navigator.clipboard.writeText(email).then(() => {
+                copyNotification.classList.add('show');
+                setTimeout(() => {
+                    copyNotification.classList.remove('show');
+                }, 2000);
+            }).catch(() => {
+                // Fallback для старых браузеров
+                const tempInput = document.createElement('input');
+                tempInput.value = email;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                
+                copyNotification.classList.add('show');
+                setTimeout(() => {
+                    copyNotification.classList.remove('show');
+                }, 2000);
+            });
+        }
+
+        // Функция для TikTok
+        function showTikTokMessage(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            alert('Ссылка на TikTok появится скоро! Следите за обновлениями.');
+        }
+
         // Запуск анимаций
         createParticles();
         
-        // Добавляем интерактивность
+        // Добавляем интерактивность для карточек
         document.addEventListener('DOMContentLoaded', function() {
             const cards = document.querySelectorAll('.service-card');
             cards.forEach(card => {
