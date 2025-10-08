@@ -382,7 +382,7 @@
                 </a>
                 
                 <!-- TikTok -->
-                <a href="#" class="social-button tiktok" onclick="showTikTokMessage(event)">
+                <a href="https://tiktok.com/@neuron_eco" class="social-button tiktok" target="_blank" onclick="event.stopPropagation()">
                     <i class="fab fa-tiktok social-icon"></i>
                 </a>
             </div>
@@ -451,13 +451,6 @@
                     copyNotification.classList.remove('show');
                 }, 2000);
             });
-        }
-
-        // Функция для TikTok
-        function showTikTokMessage(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            alert('Ссылка на TikTok появится скоро! Следите за обновлениями.');
         }
 
         // Запуск анимаций
